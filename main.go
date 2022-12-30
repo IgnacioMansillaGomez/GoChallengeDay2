@@ -56,13 +56,27 @@ func getTodosById(id string) (*todo, error) {
 	}
 
 	return nil, errors.New("item Not found")
+}
 
+func updateTodoStatus(context *gin.Context) {
+	id := context.Param("id")
+	todo, err := getTodosById(id)
+
+	if err != nil {
+		context.IndentedJSON(http.StatusNotFound, gin.H{"message": "Item not found"})
+		return
+	}
+
+	todo.Completed = !todo.Completed
+
+	context.IndentedJSON(http.StatusOK, todo)
 }
 
 func main() {
 	router := gin.Default()
 	router.GET("/todos", getTodos)
 	router.GET("/todos/:id", getTodo)
+	router.PATCH("/todos/:id", updateTodoStatus)
 	router.POST("/todos", addTodos)
 	router.Run("localhost:8000")
 }
